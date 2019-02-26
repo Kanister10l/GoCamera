@@ -1,0 +1,20 @@
+{
+  "FileObjects": [
+    {
+      "Type": "square",
+      "Data": "{\r\n  \"Origin\": {\r\n    \"X\": -1.2,\r\n    \"Y\": -1.2,\r\n    \"Z\": 5.0\r\n  },\r\n  \"Height\": 1.0,\r\n  \"Width\": 1.0,\r\n  \"Depth\": 1.0\r\n}"
+    },
+    {
+      "Type": "square",
+      "Data": "{\r\n  \"Origin\": {\r\n    \"X\": -1.2,\r\n    \"Y\": 0.2,\r\n    \"Z\": 5.0\r\n  },\r\n  \"Height\": 1.0,\r\n  \"Width\": 1.0,\r\n  \"Depth\": 1.0\r\n}"
+    },
+    {
+      "Type": "square",
+      "Data": "{\r\n  \"Origin\": {\r\n    \"X\": 0.2,\r\n    \"Y\": -1.2,\r\n    \"Z\": 5.0\r\n  },\r\n  \"Height\": 1.0,\r\n  \"Width\": 1.0,\r\n  \"Depth\": 1.0\r\n}"
+    },
+    {
+      "Type": "square",
+      "Data": "{\r\n  \"Origin\": {\r\n    \"X\": 0.2,\r\n    \"Y\": 0.2,\r\n    \"Z\": 5.0\r\n  },\r\n  \"Height\": 1.0,\r\n  \"Width\": 1.0,\r\n  \"Depth\": 1.0\r\n}"
+    }
+  ]
+}
