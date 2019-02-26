@@ -34,8 +34,8 @@ type Axis struct {
 
 type Fov struct {
 	HorizontalFov float32
-	VerticalFov float32
-	FovRatio float32
+	VerticalFov   float32
+	FovRatio      float32
 }
 
 func NewCameraAt(x, y, z, fov, screenRatio float32) *Camera {
@@ -51,7 +51,7 @@ func NewCameraAt(x, y, z, fov, screenRatio float32) *Camera {
 
 	camera.FovRatio = screenRatio
 	camera.HorizontalFov = fov
-	camera.VerticalFov = fov/camera.FovRatio
+	camera.VerticalFov = fov / camera.FovRatio
 
 	camera.UpdateCamera()
 
@@ -69,60 +69,64 @@ func (camera *Camera) UpdateCamera() {
 	camera.LookAt.Translate(camera.ZVector[0], camera.ZVector[1], camera.ZVector[2])
 }
 
+func (camera *Camera) Reset() {
+	camera.XDeg = 0.0
+	camera.YDeg = 0.0
+	camera.ZDeg = 0.0
+
+	camera.X = 0
+	camera.Y = 0
+	camera.Z = 0
+}
+
 func (r *Rotation) Rotate(xPlane, yPlane, zPlane float32) {
-	if r.XDeg + xPlane > 360.0 {
+	if r.XDeg+xPlane == 90 || r.XDeg+xPlane == 270 {
+		xPlane -= 0.01
+	}
+	if r.YDeg+yPlane == 90 || r.YDeg+yPlane == 270 {
+		yPlane -= 0.01
+	}
+	if r.ZDeg+zPlane == 90 || r.ZDeg+zPlane == 270 {
+		zPlane -= 0.01
+	}
+
+	if r.XDeg+xPlane >= 360.0 {
 		r.XDeg = xPlane - (360.0 - r.XDeg)
-	} else if r.XDeg + xPlane < 0 {
+	} else if r.XDeg+xPlane < 0 {
 		r.XDeg = 360.0 + (xPlane + r.XDeg)
 	} else {
 		r.XDeg = r.XDeg + xPlane
 	}
 
-	if r.YDeg + yPlane > 360.0 {
+	if r.YDeg+yPlane >= 360.0 {
 		r.YDeg = yPlane - (360.0 - r.YDeg)
-	} else if r.YDeg + yPlane < 0 {
+	} else if r.YDeg+yPlane < 0 {
 		r.YDeg = 360.0 + (yPlane + r.YDeg)
 	} else {
 		r.YDeg = r.YDeg + yPlane
 	}
 
-	if r.ZDeg + zPlane > 360.0 {
+	if r.ZDeg+zPlane >= 360.0 {
 		r.ZDeg = zPlane - (360.0 - r.ZDeg)
-	} else if r.ZDeg + zPlane < 0 {
+	} else if r.ZDeg+zPlane < 0 {
 		r.ZDeg = 360.0 + (zPlane + r.ZDeg)
 	} else {
 		r.ZDeg = r.ZDeg + zPlane
 	}
-
-	/*if r.XDeg + xPlane > 180.0 {
-		r.XDeg = -180.0 + (xPlane - (180.0 - r.XDeg))
-	} else if r.XDeg + xPlane < -180.0 {
-		r.XDeg = 180.0 + (xPlane - (-180.0 + r.XDeg))
-	} else {
-		r.XDeg = r.XDeg + xPlane
-	}
-
-	if r.YDeg + yPlane > 180.0 {
-		r.YDeg = -180.0 + (yPlane - (180.0 - r.YDeg))
-	} else if r.YDeg + yPlane < -180.0 {
-		r.YDeg = 180.0 + (yPlane - (-180.0 + r.YDeg))
-	} else {
-		r.YDeg = r.YDeg + yPlane
-	}
-
-	if r.ZDeg + zPlane > 180.0 {
-		r.ZDeg = -180.0 + (zPlane - (180.0 - r.ZDeg))
-	} else if r.ZDeg + zPlane < -180.0 {
-		r.ZDeg = 180.0 + (zPlane - (-180.0 + r.ZDeg))
-	} else {
-		r.ZDeg = r.ZDeg + zPlane
-	}*/
 }
 
 func (p *Position) Translate(x, y, z float32) {
 	p.X = p.X + x
 	p.Y = p.Y + y
 	p.Z = p.Z + z
+}
+
+func (f *Fov) AdjustFov(value float32) {
+	if f.HorizontalFov+value > 180 || f.HorizontalFov+value < 0 {
+		return
+	}
+	f.HorizontalFov += value
+	f.VerticalFov += value / f.FovRatio
 }
 
 func (a *Axis) NewBaseAxis() {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/kanister10l/GoCamera/Camera"
 	"github.com/kanister10l/GoCamera/KeyCallbacks"
@@ -15,9 +16,6 @@ import (
 )
 
 const (
-	width  = 800
-	height = 800
-
 	vertexShaderSource = `
 		#version 410
 		in vec3 vp;
@@ -37,18 +35,44 @@ const (
 
 func main() {
 	runtime.LockOSThread()
-	camera := Camera.NewCameraAt(0.0, 0.0, 0.0, 75, width/height)
+
+	widthPtr := flag.Int("width", 1280, "Width of the window in pixels")
+	heightPtr := flag.Int("height", 720, "Height of the window in pixels")
+
+	flag.Parse()
+
+	width := *widthPtr
+	height := *heightPtr
+
+	camera := Camera.NewCameraAt(0.0, 0.0, 0.0, 75, float32(width)/float32(height))
 
 	world := World.NewWorld()
-	err := world.Build("worldDescriptor2.json")
+	err := world.Build("worldDescriptor.json")
 	if err != nil {
 		os.Exit(127)
 	}
 
-	window := initGlfw()
+	window := initGlfw(width, height)
 	defer glfw.Terminate()
 	program := initOpenGL()
 	KeyCallbacks.SetCallbacks(window, camera, world)
+
+	log.Println(`
+	KeyBindings:
+	A ---> Move Left
+	D ---> Move Right
+	W ---> Move Forward
+	S ---> Move Backward
+	U ---> Move Up
+	J ---> Move Down
+	Left Arrow ---> Look Left
+	Right Arrow ---> Look Right
+	Up Arrow ---> Look Up
+	Down Arrow ---> Look Down
+	Y ---> Increase Field of View (ZOOM)
+	H ---> Decrease Field of View (ZOOM)
+	R ---> Reset Camera to Original Position
+	ESC ---> Quit`)
 
 	for !window.ShouldClose() {
 		draw(window, program, camera, world)
@@ -67,7 +91,7 @@ func draw(window *glfw.Window, program uint32, camera *Camera.Camera, world *Wor
 	window.SwapBuffers()
 }
 
-func initGlfw() *glfw.Window {
+func initGlfw(width, height int) *glfw.Window {
 	if err := glfw.Init(); err != nil {
 		panic(err)
 	}
@@ -124,10 +148,10 @@ func compileShader(source string, shaderType uint32) (uint32, error) {
 		var logLength int32
 		gl.GetShaderiv(shader, gl.INFO_LOG_LENGTH, &logLength)
 
-		log := strings.Repeat("\x00", int(logLength+1))
-		gl.GetShaderInfoLog(shader, logLength, nil, gl.Str(log))
+		logShader := strings.Repeat("\x00", int(logLength+1))
+		gl.GetShaderInfoLog(shader, logLength, nil, gl.Str(logShader))
 
-		return 0, fmt.Errorf("failed to compile %v: %v", source, log)
+		return 0, fmt.Errorf("failed to compile %v: %v", source, logShader)
 	}
 
 	return shader, nil

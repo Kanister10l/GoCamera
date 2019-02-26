@@ -46,25 +46,6 @@ func (camera *Camera) CheckVisibility(point World.Point) (bool, float32, float32
 	hY := point.Y - hNormExt.Y()
 	hZ := point.Z - hNormExt.Z()
 
-	//Try nr1
-	/*vCameraVector := mgl32.NewVecNFromData([]float32{camera.ZVector[2], camera.ZVector[1]}).Vec2()
-	vPointVector := mgl32.NewVecNFromData([]float32{vZ - camera.Z, vY - camera.Y}).Vec2()
-	vPlaneAngle := mgl32.RadToDeg(float32(math.Acos(float64(vCameraVector.Dot(vPointVector)/(vCameraVector.Len()*vPointVector.Len())))))
-
-	hCameraVector := mgl32.NewVecNFromData([]float32{camera.ZVector[0], camera.ZVector[2]}).Vec2()
-	hPointVector := mgl32.NewVecNFromData([]float32{hX - camera.X, hZ - camera.Z}).Vec2()
-	hPlaneAngle := mgl32.RadToDeg(float32(math.Acos(float64(hCameraVector.Dot(hPointVector)/(hCameraVector.Len()*hPointVector.Len())))))*/
-
-	//Try nr2
-	/*vCameraVector := mgl32.NewVecNFromData([]float32{camera.ZVector[2], camera.ZVector[1]}).Vec2()
-	vPointVector := mgl32.NewVecNFromData([]float32{vZ - camera.Z, vY - camera.Y}).Vec2()
-	vPlaneAngle := mgl32.RadToDeg(float32(math.Acos(float64(vCameraVector.Normalize().Dot(vPointVector.Normalize())))))
-
-	hCameraVector := mgl32.NewVecNFromData([]float32{camera.ZVector[0], camera.ZVector[2]}).Vec2()
-	hPointVector := mgl32.NewVecNFromData([]float32{hX - camera.X, hZ - camera.Z}).Vec2()
-	hPlaneAngle := mgl32.RadToDeg(float32(math.Acos(float64(hCameraVector.Normalize().Dot(hPointVector.Normalize())))))*/
-
-	//Try nr3
 	vCameraVector := mgl32.NewVecNFromData([]float32{camera.ZVector[0], camera.ZVector[1], camera.ZVector[2]}).Vec3()
 	vPointVector := mgl32.NewVecNFromData([]float32{vX - camera.X, vY - camera.Y, vZ - camera.Z}).Vec3()
 	vPlaneAngle := mgl32.RadToDeg(float32(math.Acos(float64(vCameraVector.Dot(vPointVector) / (vCameraVector.Len() * vPointVector.Len())))))
@@ -79,7 +60,9 @@ func (camera *Camera) CheckVisibility(point World.Point) (bool, float32, float32
 		hPlaneAngle = -hPlaneAngle
 	}
 
-	if camera.IsRightSide(vZ, vY, camera.Z, camera.Y, camera.LookAt.Z, camera.LookAt.Y, camera.Z+1, camera.Y) {
+	if camera.IsRightSide(vZ, vY, camera.Z, camera.Y, camera.LookAt.Z, camera.LookAt.Y, camera.Z+1, camera.Y) && camera.Rotation.XDeg <= 180 {
+		vPlaneAngle = -vPlaneAngle
+	} else if !camera.IsRightSide(vZ, vY, camera.Z, camera.Y, camera.LookAt.Z, camera.LookAt.Y, camera.Z+1, camera.Y) && camera.Rotation.XDeg > 180 {
 		vPlaneAngle = -vPlaneAngle
 	}
 
@@ -88,29 +71,6 @@ func (camera *Camera) CheckVisibility(point World.Point) (bool, float32, float32
 	}
 
 	return false, hPlaneAngle, vPlaneAngle
-
-	/*vCameraVector := mgl32.NewVecNFromData([]float32{camera.ZVector[2], camera.ZVector[1]}).Vec2()
-	vPointVector := mgl32.NewVecNFromData([]float32{point.Z - camera.Z, point.Y - camera.Y}).Vec2()
-	vPlaneAngle := mgl32.RadToDeg(float32(math.Acos(float64(vCameraVector.Dot(vPointVector)/(vCameraVector.Len()*vPointVector.Len())))))
-
-	hCameraVector := mgl32.NewVecNFromData([]float32{camera.ZVector[0], camera.ZVector[2]}).Vec2()
-	hPointVector := mgl32.NewVecNFromData([]float32{point.X - camera.X, point.Z - camera.Z}).Vec2()
-	hPlaneAngle := mgl32.RadToDeg(float32(math.Acos(float64(hCameraVector.Dot(hPointVector)/(hCameraVector.Len()*hPointVector.Len())))))
-
-	if !camera.IsRightSide(point.X, point.Z, camera.X, camera.Z, camera.LookAt.X, camera.LookAt.Z, camera.X + 1, camera.Z) {
-		hPlaneAngle = -hPlaneAngle
-	}
-
-	if camera.IsRightSide(point.Z, point.Y, camera.Z, camera.Y, camera.LookAt.Z, camera.LookAt.Y, camera.Z + 1, camera.Y) {
-		vPlaneAngle = -vPlaneAngle
-	}
-
-
-	if hPlaneAngle <= camera.HorizontalFov/2 && vPlaneAngle <= camera.VerticalFov/2 {
-		return true, hPlaneAngle, vPlaneAngle
-	}
-
-	return false, hPlaneAngle, vPlaneAngle*/
 }
 
 func (camera *Camera) IsRightSide(x, y, x1, y1, x2, y2, baseX, baseY float32) bool {

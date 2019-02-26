@@ -4,7 +4,6 @@ import (
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/kanister10l/GoCamera/Camera"
 	"github.com/kanister10l/GoCamera/World"
-	"log"
 )
 
 func SetCallbacks(window *glfw.Window, camera *Camera.Camera, world *World.World) {
@@ -41,15 +40,23 @@ func SetCallbacks(window *glfw.Window, camera *Camera.Camera, world *World.World
 				camera.Rotate(0, -1, 0)
 				camera.UpdateCamera()
 			} else if key == glfw.KeyUp {
-				camera.Rotate(-1, 0, 0)
+				camera.Rotate(1, 0, 0)
 				camera.UpdateCamera()
 			} else if key == glfw.KeyDown {
-				camera.Rotate(1, 0, 0)
+				camera.Rotate(-1, 0, 0)
+				camera.UpdateCamera()
+			} else if key == glfw.KeyH {
+				camera.AdjustFov(1)
+				camera.UpdateCamera()
+			} else if key == glfw.KeyY {
+				camera.AdjustFov(-1)
+				camera.UpdateCamera()
+			} else if key == glfw.KeyR {
+				camera.Reset()
 				camera.UpdateCamera()
 			} else if key == glfw.KeyEscape {
 				window.SetShouldClose(true)
 			}
-			log.Println("Camera position:", camera.Position, "\nCamera Rotation:", camera.Rotation, "\nCamera Axis", camera.Axis)
 		}
 	})
 }

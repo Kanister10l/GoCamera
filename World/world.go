@@ -12,13 +12,13 @@ type World struct {
 
 type Entity struct {
 	Points []Point
-	Lines []Line
+	Lines  []Line
 }
 
 type Point struct {
-	X float32
-	Y float32
-	Z float32
+	X           float32
+	Y           float32
+	Z           float32
 	ConnectedTo []int
 }
 
@@ -30,8 +30,8 @@ type Line struct {
 type Square struct {
 	Origin Origin
 	Height float32
-	Width float32
-	Depth float32
+	Width  float32
+	Depth  float32
 }
 
 type Origin struct {
@@ -80,8 +80,6 @@ func (w *World) Build(worldDescriptor string) error {
 		return err
 	}
 
-	log.Println("World File contents:", fileData)
-
 	for _, v := range fileData.FileObjects {
 		err = v.ParseObject(w)
 		if err != nil {
@@ -89,7 +87,7 @@ func (w *World) Build(worldDescriptor string) error {
 		}
 	}
 
-	log.Println("Built World state:", w)
+	log.Println("World building complete")
 
 	return nil
 }
@@ -115,63 +113,63 @@ func (w *World) BuildSquare(data Square) {
 
 	//0
 	entity.Points = append(entity.Points, Point{
-		X: data.Origin.X,
-		Y: data.Origin.Y,
-		Z: data.Origin.Z,
+		X:           data.Origin.X,
+		Y:           data.Origin.Y,
+		Z:           data.Origin.Z,
 		ConnectedTo: []int{1, 3, 4},
 	})
 	//1
 	entity.Points = append(entity.Points, Point{
-		X: data.Origin.X + data.Width,
-		Y: data.Origin.Y,
-		Z: data.Origin.Z,
+		X:           data.Origin.X + data.Width,
+		Y:           data.Origin.Y,
+		Z:           data.Origin.Z,
 		ConnectedTo: []int{0, 2, 5},
 	})
 	//2
 	entity.Points = append(entity.Points, Point{
-		X: data.Origin.X + data.Width,
-		Y: data.Origin.Y,
-		Z: data.Origin.Z + data.Depth,
+		X:           data.Origin.X + data.Width,
+		Y:           data.Origin.Y,
+		Z:           data.Origin.Z + data.Depth,
 		ConnectedTo: []int{1, 3, 6},
 	})
 	//3
 	entity.Points = append(entity.Points, Point{
-		X: data.Origin.X,
-		Y: data.Origin.Y,
-		Z: data.Origin.Z + data.Depth,
+		X:           data.Origin.X,
+		Y:           data.Origin.Y,
+		Z:           data.Origin.Z + data.Depth,
 		ConnectedTo: []int{0, 2, 7},
 	})
 	//4
 	entity.Points = append(entity.Points, Point{
-		X: data.Origin.X,
-		Y: data.Origin.Y + data.Height,
-		Z: data.Origin.Z,
+		X:           data.Origin.X,
+		Y:           data.Origin.Y + data.Height,
+		Z:           data.Origin.Z,
 		ConnectedTo: []int{0, 5, 7},
 	})
 	//5
 	entity.Points = append(entity.Points, Point{
-		X: data.Origin.X + data.Width,
-		Y: data.Origin.Y + data.Height,
-		Z: data.Origin.Z,
+		X:           data.Origin.X + data.Width,
+		Y:           data.Origin.Y + data.Height,
+		Z:           data.Origin.Z,
 		ConnectedTo: []int{1, 4, 6},
 	})
 	//6
 	entity.Points = append(entity.Points, Point{
-		X: data.Origin.X + data.Width,
-		Y: data.Origin.Y + data.Height,
-		Z: data.Origin.Z + data.Depth,
+		X:           data.Origin.X + data.Width,
+		Y:           data.Origin.Y + data.Height,
+		Z:           data.Origin.Z + data.Depth,
 		ConnectedTo: []int{2, 5, 7},
 	})
 	//7
 	entity.Points = append(entity.Points, Point{
-		X: data.Origin.X,
-		Y: data.Origin.Y + data.Height,
-		Z: data.Origin.Z + data.Depth,
+		X:           data.Origin.X,
+		Y:           data.Origin.Y + data.Height,
+		Z:           data.Origin.Z + data.Depth,
 		ConnectedTo: []int{3, 4, 6},
 	})
 
 	for k, p := range entity.Points {
-		ConnectionLoop:
+	ConnectionLoop:
 		for _, c := range p.ConnectedTo {
 			for _, l := range entity.Lines {
 				if (l.P1 == k && l.P2 == c) || (l.P1 == c && l.P2 == k) {
