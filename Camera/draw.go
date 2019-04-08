@@ -30,6 +30,41 @@ func (camera *Camera) DrawWorld(world *World.World) {
 	}
 }
 
+func (camera *Camera) DrawFullWorld(world *World.World) {
+	figures := []BSPFigure{}
+
+	polygons := []Polygon{}
+	for k1, entity := range world.Entities {
+		newFigure := BSPFigure{}
+		newFigure.Init()
+		figures = append(figures, newFigure)
+		for _, line := range entity.Lines {
+			visible := false
+			p1Visible, p1AngleX, p1AngleY := camera.CheckVisibility(entity.Points[line.P1])
+			p2Visible, p2AngleX, p2AngleY := camera.CheckVisibility(entity.Points[line.P2])
+
+			if p1Visible || p2Visible {
+				visible = true
+			}
+
+			d1 := mgl32.NewVecNFromData([]float32{entity.Points[line.P1].X - camera.X, entity.Points[line.P1].Y - camera.Y, entity.Points[line.P1].Z - camera.Z}).Vec3().Len()
+			d2 := mgl32.NewVecNFromData([]float32{entity.Points[line.P2].X - camera.X, entity.Points[line.P2].Y - camera.Y, entity.Points[line.P2].Z - camera.Z}).Vec3().Len()
+			figures[k1].AddLine(line, d1, d2, p1AngleX, p1AngleY, p2AngleX, p2AngleY, visible)
+		}
+
+		for k2 := range figures[k1].Frames {
+			if figures[k1].Frames[k2].Visible {
+				poly1, poly2, err := figures[k1].Frames[k2].ConvertToPolygons()
+				if err == nil {
+					polygons = append(polygons, poly1, poly2)
+				}
+			}
+		}
+	}
+
+	tree := BuildTree(polygons)
+}
+
 func (camera *Camera) CheckVisibility(point World.Point) (bool, float32, float32) {
 	poi := mgl32.NewVecNFromData([]float32{point.X - camera.X, point.Y - camera.Y, point.Z - camera.Z}).Vec3()
 	vNorm := mgl32.NewVecNFromData([]float32{camera.XVector[0], camera.XVector[1], camera.XVector[2]}).Vec3().Normalize()

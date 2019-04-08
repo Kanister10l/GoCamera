@@ -11,7 +11,8 @@ type Camera struct {
 	Position
 	Axis
 	Fov
-	LookAt Position
+	LookAt   Position
+	DrawType int
 }
 
 type Rotation struct {
@@ -41,6 +42,9 @@ type Fov struct {
 func NewCameraAt(x, y, z, fov, screenRatio float32) *Camera {
 	log.Println("Preparing new camera")
 	camera := Camera{}
+
+	camera.DrawType = 0
+
 	camera.X = x
 	camera.Y = y
 	camera.Z = z
@@ -77,6 +81,14 @@ func (camera *Camera) Reset() {
 	camera.X = 0
 	camera.Y = 0
 	camera.Z = 0
+}
+
+func (camera *Camera) ChangeDrawType() {
+	if camera.DrawType == 0 {
+		camera.DrawType = 1
+	} else {
+		camera.DrawType = 0
+	}
 }
 
 func (r *Rotation) Rotate(xPlane, yPlane, zPlane float32) {

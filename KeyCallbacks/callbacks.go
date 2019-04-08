@@ -56,6 +56,8 @@ func SetCallbacks(window *glfw.Window, camera *Camera.Camera, world *World.World
 				camera.UpdateCamera()
 			} else if key == glfw.KeyEscape {
 				window.SetShouldClose(true)
+			} else if key == glfw.KeyPageDown {
+				camera.ChangeDrawType()
 			}
 		}
 	})

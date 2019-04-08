@@ -83,7 +83,11 @@ func draw(window *glfw.Window, program uint32, camera *Camera.Camera, world *Wor
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.UseProgram(program)
 
-	gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
+	if camera.DrawType == 0 {
+		gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
+	} else if camera.DrawType == 1 {
+		gl.PolygonMode(gl.FRONT_AND_BACK, gl.FILL)
+	}
 
 	camera.DrawWorld(world)
 
