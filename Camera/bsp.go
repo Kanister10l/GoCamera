@@ -1,9 +1,10 @@
 package Camera
 
 import (
+	"log"
+
 	"github.com/kanister10l/GoCamera/World"
 	"github.com/pkg/errors"
-	"log"
 )
 
 var SideMarker = [6][4]int{
@@ -104,14 +105,17 @@ func (f *BSPFrame) ConvertToPolygons() (Polygon, Polygon, error) {
 	}
 	var poli1 Polygon
 	var poli2 Polygon
-mainFor:
+
 	for i := 1; i < 4; i++ {
 		if f.Lines[i].Line.P1 == f.Lines[0].Line.P1 || f.Lines[i].Line.P2 == f.Lines[0].Line.P1 {
+
 			poli1 = MakePolygon([]float32{
 				f.Lines[i].P1AngleX, f.Lines[i].P1AngleY, 0,
 				f.Lines[i].P2AngleX, f.Lines[i].P2AngleY, 0,
 				f.Lines[0].P2AngleX, f.Lines[0].P2AngleY, 0,
 			})
+
+			poli1.Dist = FindCloserLine(f.Lines[0], f.Lines[i])
 
 			pMaker := i
 			sp1 := 0
@@ -130,12 +134,16 @@ mainFor:
 					f.Lines[sp1].P2AngleX, f.Lines[sp1].P2AngleY, 0,
 					f.Lines[sp2].P2AngleX, f.Lines[sp2].P2AngleY, 0,
 				})
+
+				poli2.Dist = FindCloserLine(f.Lines[sp1], f.Lines[sp2])
 			} else if f.Lines[sp1].Line.P1 == f.Lines[sp2].Line.P2 || f.Lines[sp1].Line.P2 == f.Lines[sp2].Line.P2 {
-				poli1 = MakePolygon([]float32{
+				poli2 = MakePolygon([]float32{
 					f.Lines[sp1].P1AngleX, f.Lines[sp1].P1AngleY, 0,
 					f.Lines[sp1].P2AngleX, f.Lines[sp1].P2AngleY, 0,
 					f.Lines[sp2].P1AngleX, f.Lines[sp2].P1AngleY, 0,
 				})
+
+				poli2.Dist = FindCloserLine(f.Lines[sp1], f.Lines[sp2])
 			}
 		} else if f.Lines[i].Line.P1 == f.Lines[0].Line.P2 || f.Lines[i].Line.P2 == f.Lines[0].Line.P2 {
 			poli1 = MakePolygon([]float32{
@@ -144,6 +152,8 @@ mainFor:
 				f.Lines[0].P1AngleX, f.Lines[0].P1AngleY, 0,
 			})
 
+			poli1.Dist = FindCloserLine(f.Lines[0], f.Lines[i])
+
 			pMaker := i
 			sp1 := 0
 			sp2 := 0
@@ -161,12 +171,16 @@ mainFor:
 					f.Lines[sp1].P2AngleX, f.Lines[sp1].P2AngleY, 0,
 					f.Lines[sp2].P2AngleX, f.Lines[sp2].P2AngleY, 0,
 				})
+
+				poli2.Dist = FindCloserLine(f.Lines[sp1], f.Lines[sp2])
 			} else if f.Lines[sp1].Line.P1 == f.Lines[sp2].Line.P2 || f.Lines[sp1].Line.P2 == f.Lines[sp2].Line.P2 {
-				poli1 = MakePolygon([]float32{
+				poli2 = MakePolygon([]float32{
 					f.Lines[sp1].P1AngleX, f.Lines[sp1].P1AngleY, 0,
 					f.Lines[sp1].P2AngleX, f.Lines[sp1].P2AngleY, 0,
 					f.Lines[sp2].P1AngleX, f.Lines[sp2].P1AngleY, 0,
 				})
+
+				poli2.Dist = FindCloserLine(f.Lines[sp1], f.Lines[sp2])
 			}
 		}
 	}
@@ -243,4 +257,29 @@ func (l *BSPLine) FindDistantPoint() int {
 	}
 
 	return 2
+}
+
+func FindCloserLine(l1, l2 BSPLine) float32 {
+	p1 := l1.FindClosePoint()
+	p2 := l2.FindClosePoint()
+	var d1 float32
+	var d2 float32
+
+	if p1 == 1 {
+		d1 = l1.P1Dist
+	} else {
+		d1 = l1.P2Dist
+	}
+
+	if p2 == 1 {
+		d2 = l2.P1Dist
+	} else {
+		d2 = l2.P2Dist
+	}
+
+	if d1 < d2 {
+		return d1
+	}
+
+	return d2
 }
