@@ -2,12 +2,14 @@ package Camera
 
 import (
 	"fmt"
+	"log"
 	"math"
+	"math/rand"
 
-	"github.com/ByteArena/poly2tri-go"
 	"github.com/akavel/polyclip-go"
 	"github.com/go-gl/gl/v4.1-compatibility/gl"
 	"github.com/kanister10l/GoCamera/Helpers"
+	"github.com/tchayen/triangolatte"
 )
 
 type Node struct {
@@ -125,7 +127,7 @@ func DividePolygon(divisor Polygon, base Polygon) ([]Polygon, bool) {
 
 	newTr := []Polygon{}
 
-	for _, v := range result {
+	/*for _, v := range result {
 		contour := []*poly2tri.Point{}
 		for _, v2 := range v {
 			contour = append(contour, poly2tri.NewPoint(v2.X, v2.Y))
@@ -140,6 +142,26 @@ func DividePolygon(divisor Polygon, base Polygon) ([]Polygon, bool) {
 				float32(v2.Points[0].X), float32(v2.Points[0].Y), 0,
 				float32(v2.Points[1].X), float32(v2.Points[1].Y), 0,
 				float32(v2.Points[2].X), float32(v2.Points[2].Y), 0,
+			}, Dist: d})
+		}
+	}*/
+
+	for _, v := range result {
+		contour := []triangolatte.Point{}
+		for _, v2 := range v {
+			contour = append(contour, triangolatte.Point{X: v2.X + (rand.Float64()*2-1)*0.01, Y: v2.Y + (rand.Float64()*2-1)*0.01})
+		}
+
+		tr, err := triangolatte.Polygon(contour)
+		if err != nil {
+			log.Println(err)
+		}
+
+		for i := 0; i < len(tr); i += 6 {
+			newTr = append(newTr, Polygon{Drawer: []float32{
+				float32(tr[i]), float32(tr[i+1]), 0,
+				float32(tr[i+2]), float32(tr[i+3]), 0,
+				float32(tr[i+4]), float32(tr[i+5]), 0,
 			}, Dist: d})
 		}
 	}

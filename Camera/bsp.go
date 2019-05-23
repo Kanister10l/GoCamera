@@ -185,6 +185,12 @@ func (f *BSPFrame) ConvertToPolygons() (Polygon, Polygon, error) {
 		}
 	}
 
+	if poli1.Dist < poli2.Dist {
+		poli2.Dist = poli1.Dist
+	} else {
+		poli1.Dist = poli2.Dist
+	}
+
 	return poli1, poli2, nil
 }
 
@@ -260,7 +266,7 @@ func (l *BSPLine) FindDistantPoint() int {
 }
 
 func FindCloserLine(l1, l2 BSPLine) float32 {
-	p1 := l1.FindClosePoint()
+	/*p1 := l1.FindClosePoint()
 	p2 := l2.FindClosePoint()
 	var d1 float32
 	var d2 float32
@@ -281,5 +287,17 @@ func FindCloserLine(l1, l2 BSPLine) float32 {
 		return d1
 	}
 
-	return d2
+	return d2*/
+
+	//Finding average distance insted of closest one
+
+	if l1.P1Dist == l2.P1Dist {
+		return ((l1.P1Dist+l1.P2Dist)/2 + (l2.P1Dist+l2.P2Dist)/2 + (l1.P2Dist+l2.P2Dist)/2) / 3
+	} else if l1.P1Dist == l2.P2Dist {
+		return ((l1.P1Dist+l1.P2Dist)/2 + (l2.P1Dist+l2.P2Dist)/2 + (l1.P2Dist+l2.P1Dist)/2) / 3
+	} else if l1.P2Dist == l2.P1Dist {
+		return ((l1.P1Dist+l1.P2Dist)/2 + (l2.P1Dist+l2.P2Dist)/2 + (l1.P1Dist+l2.P2Dist)/2) / 3
+	}
+
+	return ((l1.P1Dist+l1.P2Dist)/2 + (l2.P1Dist+l2.P2Dist)/2 + (l1.P1Dist+l2.P1Dist)/2) / 3
 }

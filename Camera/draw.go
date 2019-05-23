@@ -66,9 +66,26 @@ func (camera *Camera) DrawFullWorld(world *World.World) {
 		}
 	}
 
-	tree := BuildTree(polygons)
+	polyLen := len(polygons)
 
-	Traverse(tree)
+	for i := 0; i < polyLen; i++ {
+		min := polygons[0].Dist
+		toRender := 0
+		for k, v := range polygons {
+			if v.Dist > min {
+				min = v.Dist
+				toRender = k
+			}
+		}
+
+		gl.BindVertexArray(Helpers.MakeVao(polygons[toRender].Drawer))
+		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(polygons[toRender].Drawer)/3))
+		polygons = append(polygons[:toRender], polygons[toRender+1:]...)
+	}
+
+	/*tree := BuildTree(polygons)
+
+	Traverse(tree)*/
 }
 
 func (camera *Camera) CheckVisibility(point World.Point) (bool, float32, float32) {
