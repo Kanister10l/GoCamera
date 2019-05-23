@@ -89,6 +89,7 @@ func main() {
 	Y ---> Increase Field of View (ZOOM)
 	H ---> Decrease Field of View (ZOOM)
 	R ---> Reset Camera to Original Position
+	PGDN ---> Change painting type
 	ESC ---> Quit`)
 
 	for !window.ShouldClose() {
