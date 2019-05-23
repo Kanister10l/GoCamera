@@ -3,37 +3,54 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/kanister10l/GoCamera/Camera"
-	"github.com/kanister10l/GoCamera/KeyCallbacks"
-	"github.com/kanister10l/GoCamera/World"
 	"log"
+	"math/rand"
 	"os"
 	"runtime"
 	"strings"
+	"time"
+
+	"github.com/kanister10l/GoCamera/Camera"
+	"github.com/kanister10l/GoCamera/KeyCallbacks"
+	"github.com/kanister10l/GoCamera/World"
 
 	"github.com/go-gl/gl/v4.1-compatibility/gl" // OR: github.com/go-gl/gl/v2.1/gl
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
 const (
-	vertexShaderSource = `
+	/*vertexShaderSource = `
 		#version 410
 		in vec3 vp;
 		void main() {
+			gl_Position = vec4(vp, 1.0);
+		}
+	` + "\x00"*/
+	vertexShaderSource = `
+		#version 410
+		layout(location = 0) in vec3 vp;
+		layout(location = 1) in vec3 vertex_colour;
+
+		out vec3 colour;
+
+		void main() {
+			colour = vertex_colour;
 			gl_Position = vec4(vp, 1.0);
 		}
 	` + "\x00"
 
 	fragmentShaderSource = `
 		#version 410
+		in vec3 colour;
 		out vec4 frag_colour;
 		void main() {
-			frag_colour = vec4(1, 1, 1, 1.0);
+			frag_colour = vec4(colour, 1.0);
 		}
 	` + "\x00"
 )
 
 func main() {
+	rand.Seed(time.Now().Unix())
 	runtime.LockOSThread()
 
 	widthPtr := flag.Int("width", 1280, "Width of the window in pixels")
@@ -72,6 +89,7 @@ func main() {
 	Y ---> Increase Field of View (ZOOM)
 	H ---> Decrease Field of View (ZOOM)
 	R ---> Reset Camera to Original Position
+	PGDN ---> Change painting type
 	ESC ---> Quit`)
 
 	for !window.ShouldClose() {
@@ -85,11 +103,11 @@ func draw(window *glfw.Window, program uint32, camera *Camera.Camera, world *Wor
 
 	if camera.DrawType == 0 {
 		gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
+		camera.DrawWorld(world)
 	} else if camera.DrawType == 1 {
 		gl.PolygonMode(gl.FRONT_AND_BACK, gl.FILL)
+		camera.DrawFullWorld(world)
 	}
-
-	camera.DrawWorld(world)
 
 	glfw.PollEvents()
 	window.SwapBuffers()

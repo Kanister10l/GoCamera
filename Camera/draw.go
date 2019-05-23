@@ -1,11 +1,12 @@
 package Camera
 
 import (
+	"math"
+
 	"github.com/go-gl/gl/v4.1-compatibility/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kanister10l/GoCamera/Helpers"
 	"github.com/kanister10l/GoCamera/World"
-	"math"
 )
 
 func (camera *Camera) DrawWorld(world *World.World) {
@@ -47,9 +48,12 @@ func (camera *Camera) DrawFullWorld(world *World.World) {
 				visible = true
 			}
 
+			x1, y1 := Helpers.NormalizePosition(p1AngleX, p1AngleY, camera.HorizontalFov/2, camera.VerticalFov/2)
+			x2, y2 := Helpers.NormalizePosition(p2AngleX, p2AngleY, camera.HorizontalFov/2, camera.VerticalFov/2)
+
 			d1 := mgl32.NewVecNFromData([]float32{entity.Points[line.P1].X - camera.X, entity.Points[line.P1].Y - camera.Y, entity.Points[line.P1].Z - camera.Z}).Vec3().Len()
 			d2 := mgl32.NewVecNFromData([]float32{entity.Points[line.P2].X - camera.X, entity.Points[line.P2].Y - camera.Y, entity.Points[line.P2].Z - camera.Z}).Vec3().Len()
-			figures[k1].AddLine(line, d1, d2, p1AngleX, p1AngleY, p2AngleX, p2AngleY, visible)
+			figures[k1].AddLine(line, d1, d2, x1, y1, x2, y2, visible)
 		}
 
 		for k2 := range figures[k1].Frames {
@@ -62,7 +66,26 @@ func (camera *Camera) DrawFullWorld(world *World.World) {
 		}
 	}
 
-	tree := BuildTree(polygons)
+	polyLen := len(polygons)
+
+	for i := 0; i < polyLen; i++ {
+		min := polygons[0].Dist
+		toRender := 0
+		for k, v := range polygons {
+			if v.Dist > min {
+				min = v.Dist
+				toRender = k
+			}
+		}
+
+		gl.BindVertexArray(Helpers.MakeVao(polygons[toRender].Drawer))
+		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(polygons[toRender].Drawer)/3))
+		polygons = append(polygons[:toRender], polygons[toRender+1:]...)
+	}
+
+	/*tree := BuildTree(polygons)
+
+	Traverse(tree)*/
 }
 
 func (camera *Camera) CheckVisibility(point World.Point) (bool, float32, float32) {
