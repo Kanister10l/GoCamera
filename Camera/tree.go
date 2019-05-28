@@ -73,7 +73,7 @@ func Traverse(node *Node) {
 
 	if node.RenderReady {
 		for _, v := range node.ToRender {
-			gl.BindVertexArray(Helpers.MakeVao(v.Drawer))
+			gl.BindVertexArray(Helpers.MakeVao(v.Drawer, []float32{}, true))
 			gl.DrawArrays(gl.TRIANGLES, 0, int32(len(v.Drawer)/3))
 		}
 	}

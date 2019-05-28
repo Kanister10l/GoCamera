@@ -11,14 +11,16 @@ func DegToRad(deg float32) float32 {
 	return deg * math.Pi / 180.0
 }
 
-func MakeVao(points []float32) uint32 {
-	r := rand.Float32()
-	g := rand.Float32()
-	b := rand.Float32()
-	color := []float32{
-		r, g, b,
-		r, g, b,
-		r, g, b,
+func MakeVao(points []float32, color []float32, randColor bool) uint32 {
+	if randColor {
+		r := rand.Float32()
+		g := rand.Float32()
+		b := rand.Float32()
+		color = []float32{
+			r, g, b,
+			r, g, b,
+			r, g, b,
+		}
 	}
 
 	var vbo uint32

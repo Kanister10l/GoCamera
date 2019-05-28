@@ -55,13 +55,31 @@ func main() {
 
 	widthPtr := flag.Int("width", 1280, "Width of the window in pixels")
 	heightPtr := flag.Int("height", 720, "Height of the window in pixels")
+	spComp := flag.Int("spc", 0, "Sphere Level of detail Available: 0,1,2,3")
 
 	flag.Parse()
 
 	width := *widthPtr
 	height := *heightPtr
 
+	vRes := 50
+	aRes := 30
+
+	if *spComp == 1 {
+		vRes = 75
+		aRes = 45
+	} else if *spComp == 2 {
+		vRes = 100
+		aRes = 60
+	} else if *spComp == 3 {
+		vRes = 200
+		aRes = 120
+	}
+
 	camera := Camera.NewCameraAt(0.0, 0.0, 0.0, 75, float32(width)/float32(height))
+	sphereWorld := Camera.CreateSphereWorld(0, 0, 20, 30)
+
+	spherePoints := Camera.GenerateSphere(10, 0, 0, 20, vRes, aRes)
 
 	world := World.NewWorld()
 	err := world.Build("worldDescriptor.json")
@@ -72,7 +90,7 @@ func main() {
 	window := initGlfw(width, height)
 	defer glfw.Terminate()
 	program := initOpenGL()
-	KeyCallbacks.SetCallbacks(window, camera, world)
+	KeyCallbacks.SetCallbacks(window, camera, world, sphereWorld)
 
 	log.Println(`
 	KeyBindings:
@@ -90,14 +108,21 @@ func main() {
 	H ---> Decrease Field of View (ZOOM)
 	R ---> Reset Camera to Original Position
 	PGDN ---> Change painting type
+	PGUP ---> Change to sphere mode
+	KeyPad [2, 4, 6, 8] ---> Rotate light source around sphere
+	[1, 2] ---> [-, +] Adjust Hue
+	[3, 4] ---> [-, +] Adjust Ambient reflection
+	[5, 6] ---> [-, +] Adjust Diffuse reflection
+	[7, 8] ---> [-, +] Adjust Specular reflection
+	[9, 0] ---> [-, +] Adjust Shininess
 	ESC ---> Quit`)
 
 	for !window.ShouldClose() {
-		draw(window, program, camera, world)
+		draw(window, program, camera, world, spherePoints, float32(width)/float32(height), sphereWorld)
 	}
 }
 
-func draw(window *glfw.Window, program uint32, camera *Camera.Camera, world *World.World) {
+func draw(window *glfw.Window, program uint32, camera *Camera.Camera, world *World.World, spherePoints []Camera.SpherePoint, ratio float32, sphereWorld *Camera.SphereWorld) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.UseProgram(program)
 
@@ -107,6 +132,9 @@ func draw(window *glfw.Window, program uint32, camera *Camera.Camera, world *Wor
 	} else if camera.DrawType == 1 {
 		gl.PolygonMode(gl.FRONT_AND_BACK, gl.FILL)
 		camera.DrawFullWorld(world)
+	} else if camera.DrawType == 2 {
+		gl.PolygonMode(gl.FRONT_AND_BACK, gl.FILL)
+		camera.DrawSphere(spherePoints, ratio, sphereWorld)
 	}
 
 	glfw.PollEvents()

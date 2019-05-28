@@ -1,9 +1,10 @@
 package Camera
 
 import (
-	"github.com/kanister10l/GoCamera/Helpers"
 	"log"
 	"math"
+
+	"github.com/kanister10l/GoCamera/Helpers"
 )
 
 type Camera struct {
@@ -89,6 +90,10 @@ func (camera *Camera) ChangeDrawType() {
 	} else {
 		camera.DrawType = 0
 	}
+}
+
+func (camera *Camera) SphereDrawType() {
+	camera.DrawType = 2
 }
 
 func (r *Rotation) Rotate(xPlane, yPlane, zPlane float32) {

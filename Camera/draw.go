@@ -9,6 +9,23 @@ import (
 	"github.com/kanister10l/GoCamera/World"
 )
 
+func (camera *Camera) DrawSphere(spherePoints []SpherePoint, ratio float32, sp *SphereWorld) {
+	yCanvas := float32(20)
+	xCanvas := ratio * 20
+	if ratio < 1 {
+		xCanvas = 20
+		yCanvas = 20 / ratio
+	}
+
+	spherePoints = CalculateLightIntensity(spherePoints, sp.X, sp.Y, sp.Z, 0, 0, 0, sp.Ka, sp.Kd, sp.Ks, sp.N)
+	poly := Polygonyfy(spherePoints, xCanvas, yCanvas, sp.Hue)
+
+	for _, p := range poly {
+		gl.BindVertexArray(Helpers.MakeVao(p.Drawer, p.Color, false))
+		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(p.Drawer)/3))
+	}
+}
+
 func (camera *Camera) DrawWorld(world *World.World) {
 	for _, entity := range world.Entities {
 		for _, line := range entity.Lines {
@@ -24,7 +41,7 @@ func (camera *Camera) DrawWorld(world *World.World) {
 					x2, y2, 0,
 				}
 
-				gl.BindVertexArray(Helpers.MakeVao(drawLine))
+				gl.BindVertexArray(Helpers.MakeVao(drawLine, []float32{}, true))
 				gl.DrawArrays(gl.TRIANGLES, 0, int32(len(drawLine)/3))
 			}
 		}
@@ -78,7 +95,7 @@ func (camera *Camera) DrawFullWorld(world *World.World) {
 			}
 		}
 
-		gl.BindVertexArray(Helpers.MakeVao(polygons[toRender].Drawer))
+		gl.BindVertexArray(Helpers.MakeVao(polygons[toRender].Drawer, []float32{}, true))
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(polygons[toRender].Drawer)/3))
 		polygons = append(polygons[:toRender], polygons[toRender+1:]...)
 	}
