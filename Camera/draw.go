@@ -12,13 +12,21 @@ import (
 func (camera *Camera) DrawSphere(spherePoints []SpherePoint, ratio float32, sp *SphereWorld) {
 	yCanvas := float32(20)
 	xCanvas := ratio * 20
+
+	var poly []SpherePolygon
+
 	if ratio < 1 {
 		xCanvas = 20
 		yCanvas = 20 / ratio
 	}
 
-	spherePoints = CalculateLightIntensity(spherePoints, sp.X, sp.Y, sp.Z, 0, 0, 0, sp.Ka, sp.Kd, sp.Ks, sp.N)
-	poly := Polygonyfy(spherePoints, xCanvas, yCanvas, sp.Hue)
+	if sp.Prepared {
+		spherePoints = CalculateMaterialIntensity(spherePoints, sp.X, sp.Y, sp.Z, 0, 0, 0, sp.Materials[sp.SelectedMaterial])
+		poly = PolygonyfyMaterial(spherePoints, xCanvas, yCanvas)
+	} else {
+		spherePoints = CalculateLightIntensity(spherePoints, sp.X, sp.Y, sp.Z, 0, 0, 0, sp.Ka, sp.Kd, sp.Ks, sp.N)
+		poly = Polygonyfy(spherePoints, xCanvas, yCanvas, sp.Hue)
+	}
 
 	for _, p := range poly {
 		gl.BindVertexArray(Helpers.MakeVao(p.Drawer, p.Color, false))

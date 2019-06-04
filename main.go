@@ -77,7 +77,8 @@ func main() {
 	}
 
 	camera := Camera.NewCameraAt(0.0, 0.0, 0.0, 75, float32(width)/float32(height))
-	sphereWorld := Camera.CreateSphereWorld(0, 0, 20, 30)
+	materials := Camera.LoadMaterial("./materials.json")
+	sphereWorld := Camera.CreateSphereWorld(0, 0, 20, 30, materials)
 
 	spherePoints := Camera.GenerateSphere(10, 0, 0, 20, vRes, aRes)
 

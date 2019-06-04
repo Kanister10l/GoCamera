@@ -88,6 +88,8 @@ func SetCallbacks(window *glfw.Window, camera *Camera.Camera, world *World.World
 				sp.ModifyConstant(0, 0, 0, 0, -1)
 			} else if key == glfw.Key0 {
 				sp.ModifyConstant(0, 0, 0, 0, 1)
+			} else if key == glfw.KeyM {
+				sp.SelectNextMaterial()
 			}
 		}
 	})
