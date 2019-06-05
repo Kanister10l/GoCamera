@@ -118,6 +118,13 @@ func (sp *SphereWorld) ModifyConstant(a, d, s, h float32, n int) {
 	}
 
 	sp.Prepared = false
+
+	log.Printf(`
+	Ka ---> %f
+	Kd ---> %f
+	Ks ---> %f
+	N  ---> %d
+	`, sp.Ka, sp.Kd, sp.Ks, sp.N)
 }
 
 func (s *SphereWorld) Update() {
@@ -190,7 +197,16 @@ func CalculateLightIntensity(points []SpherePoint, xSource, ySource, zSource, xW
 
 		if points[k].Nvector.Dot(watchVec) >= 0 && points[k].Nvector.Dot(lightVec.Mul(-1)) >= 0 {
 			reflectionVec := lightVec.Sub(points[k].Nvector.Mul(lightVec.Dot(points[k].Nvector) * 2))
-			intensity = ka + kd*points[k].Nvector.Dot(lightVec.Mul(-1)) + ks*float32(math.Pow(float64(reflectionVec.Dot(watchVec)), float64(n)))
+			ref := float64(reflectionVec.Dot(watchVec))
+			dif := points[k].Nvector.Dot(lightVec.Mul(-1))
+			if ref < 0 {
+				ref = 0
+			}
+			if dif < 0 {
+				dif = 0
+			}
+
+			intensity = ka + kd*dif + ks*float32(math.Pow(ref, float64(n)))
 			points[k].Intensity = intensity
 			if intensity > max {
 				max = intensity
@@ -220,10 +236,18 @@ func CalculateMaterialIntensity(points []SpherePoint, xSource, ySource, zSource,
 
 		if points[k].Nvector.Dot(watchVec) >= 0 && points[k].Nvector.Dot(lightVec.Mul(-1)) >= 0 {
 			reflectionVec := lightVec.Sub(points[k].Nvector.Mul(lightVec.Dot(points[k].Nvector) * 2))
+			ref := float64(reflectionVec.Dot(watchVec))
+			dif := points[k].Nvector.Dot(lightVec.Mul(-1))
+			if ref < 0 {
+				ref = 0
+			}
+			if dif < 0 {
+				dif = 0
+			}
 
-			rIntensity = mat.Ambient.R + mat.Diffuse.R*points[k].Nvector.Dot(lightVec.Mul(-1)) + mat.Specular.R*float32(math.Pow(float64(reflectionVec.Dot(watchVec)), float64(mat.Shininess)))
-			gIntensity = mat.Ambient.G + mat.Diffuse.G*points[k].Nvector.Dot(lightVec.Mul(-1)) + mat.Specular.G*float32(math.Pow(float64(reflectionVec.Dot(watchVec)), float64(mat.Shininess)))
-			bIntensity = mat.Ambient.B + mat.Diffuse.B*points[k].Nvector.Dot(lightVec.Mul(-1)) + mat.Specular.B*float32(math.Pow(float64(reflectionVec.Dot(watchVec)), float64(mat.Shininess)))
+			rIntensity = mat.Ambient.R + mat.Diffuse.R*dif + mat.Specular.R*float32(math.Pow(ref, float64(mat.Shininess)))
+			gIntensity = mat.Ambient.G + mat.Diffuse.G*dif + mat.Specular.G*float32(math.Pow(ref, float64(mat.Shininess)))
+			bIntensity = mat.Ambient.B + mat.Diffuse.B*dif + mat.Specular.B*float32(math.Pow(ref, float64(mat.Shininess)))
 
 			points[k].MaterialIntensity = []float32{rIntensity, gIntensity, bIntensity}
 			if rIntensity > max {
